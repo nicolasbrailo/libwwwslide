@@ -138,7 +138,7 @@ struct WwwSlider *wwwslider_init(const char *base_url,
     if (ret != 0) {
       fprintf(stderr, "Failed to global init curl: %s\n",
               curl_easy_strerror(ret));
-      goto err;
+      return NULL;
     }
   }
 
@@ -247,12 +247,13 @@ static void *wwwslider_register(void *usrarg) {
 
   char json_payload[128];
   {
-    const char *client_register_template =
-        "{\"target_width\": %zu, \"target_height\": %zu, \"embed_qr\": %s}";
+#define CLIENT_REGISTER_TEMPLATE \
+        "{\"target_width\": %zu, \"target_height\": %zu, \"embed_qr\": %s}"
     size_t sz =
-        snprintf(json_payload, sizeof(json_payload), client_register_template,
+        snprintf(json_payload, sizeof(json_payload), CLIENT_REGISTER_TEMPLATE,
                  ctx->config.target_width, ctx->config.target_height,
                  ctx->config.embed_qr ? "true" : "false");
+#undef CLIENT_REGISTER_TEMPLATE
     if (sz > sizeof(json_payload)) {
       fprintf(stderr, "Bad request: register request would truncate\n");
       goto err;
